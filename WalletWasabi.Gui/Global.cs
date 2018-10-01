@@ -134,7 +134,7 @@ namespace WalletWasabi.Gui
 			TorManager = null;
 
 			TorManager = new TorProcessManager(Config.GetTorSocks5EndPoint(), TorLogsFile);
-			TorManager.Start(false);
+			TorManager.Start(false, DataDir);
 
 			Logger.LogInfo<TorProcessManager>($"{nameof(TorProcessManager)} is initialized.");
 
@@ -217,7 +217,7 @@ namespace WalletWasabi.Gui
 			ChaumianClient = new CcjClient(Network, BlindingPubKey, keyManager, Config.GetCurrentBackendUri(), Config.GetTorSocks5EndPoint());
 			WalletService = new WalletService(keyManager, IndexDownloader, ChaumianClient, MemPoolService, Nodes, DataDir);
 
-			ChaumianClient.Start(0, 7);
+			ChaumianClient.Start(0, 3);
 			Logger.LogInfo("Start Chaumian CoinJoin service...");
 
 			using (CancelWalletServiceInitialization = new CancellationTokenSource())
@@ -296,25 +296,32 @@ namespace WalletWasabi.Gui
 
 		public static async Task DisposeAsync()
 		{
-			await DisposeInWalletDependentServicesAsync();
-
-			UpdateChecker?.Dispose();
-			Logger.LogInfo($"{nameof(UpdateChecker)} is stopped.", nameof(Global));
-
-			IndexDownloader?.Dispose();
-			Logger.LogInfo($"{nameof(IndexDownloader)} is stopped.", nameof(Global));
-
-			IoHelpers.EnsureContainingDirectoryExists(AddressManagerFilePath);
-			AddressManager?.SavePeerFile(AddressManagerFilePath, Config.Network);
-			Logger.LogInfo($"{nameof(AddressManager)} is saved to `{AddressManagerFilePath}`.", nameof(Global));
-
-			Nodes?.Dispose();
-			Logger.LogInfo($"{nameof(Nodes)} are disposed.", nameof(Global));
-
-			if (!(RegTestMemPoolServingNode is null))
+			try
 			{
-				RegTestMemPoolServingNode.Disconnect();
-				Logger.LogInfo($"{nameof(RegTestMemPoolServingNode)} is disposed.", nameof(Global));
+				await DisposeInWalletDependentServicesAsync();
+
+				UpdateChecker?.Dispose();
+				Logger.LogInfo($"{nameof(UpdateChecker)} is stopped.", nameof(Global));
+
+				IndexDownloader?.Dispose();
+				Logger.LogInfo($"{nameof(IndexDownloader)} is stopped.", nameof(Global));
+
+				IoHelpers.EnsureContainingDirectoryExists(AddressManagerFilePath);
+				AddressManager?.SavePeerFile(AddressManagerFilePath, Config.Network);
+				Logger.LogInfo($"{nameof(AddressManager)} is saved to `{AddressManagerFilePath}`.", nameof(Global));
+
+				Nodes?.Dispose();
+				Logger.LogInfo($"{nameof(Nodes)} are disposed.", nameof(Global));
+
+				if (!(RegTestMemPoolServingNode is null))
+				{
+					RegTestMemPoolServingNode.Disconnect();
+					Logger.LogInfo($"{nameof(RegTestMemPoolServingNode)} is disposed.", nameof(Global));
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.LogWarning(ex, nameof(Global));
 			}
 		}
 	}

@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="ConcurrentHashSet" Version="1.0.2" />
-    <PackageReference Include="NBitcoin" Version="4.1.1.46" />
+    <PackageReference Include="NBitcoin" Version="4.1.1.48" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="1.0.2" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.3" />
   </ItemGroup>
@@ -33,9 +33,6 @@
     <None Update="TorDaemons\Data.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="TorDaemons\tor-linux32.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="TorDaemons\tor-linux64.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -45,6 +42,9 @@
     <None Update="TorDaemons\tor-win32.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
   </ItemGroup>
 
 </Project>
